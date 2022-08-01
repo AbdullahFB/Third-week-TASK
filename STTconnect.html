@@ -1,0 +1,116 @@
+.<!DOCTYPE html>
+<html lang="AR">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech To Text (Abdullah Fouad)</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css
+    ">
+</head>
+<body>
+    <body style="background-color:rgb(45, 214, 206);">
+<style>
+    p {text-align: center;}
+    p {font-size: 150%;}
+    div {text-align: center;}
+    .form-group{text-align: center;}
+    .button{text-align: center;}
+
+</style>
+   <div class="container">
+    <h1 class="text-center mt-S">
+        Speech To Text (Abdullah  Bokhari)
+    </h1>
+        <div class="form-group">
+            <textarea id="textbox" cols="80" rows="10"></textarea>
+        </div>
+        <div class="form-group">
+            <button id ="start-btn" class="btn btn-danger btn-block" style="background-color:rgb(14, 99, 94);width:50%;
+            margin-left:25%;
+            margin-right:25%;
+            " >
+                Start
+            </button>
+            <button class = "btn btn-danger btn-block" onclick="onConnectUsb()" id="connect-usb" style="background-color:rgb(14, 99, 94);width:50%;
+            margin-left:25%;
+            margin-right:25%;
+            ">
+                connect
+            </button>
+            
+            <p id="instructions">^Choose one of the options^</p>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+            <script>
+                var speechRecognition = window.webkitSpeechRecognition
+            
+            var recognition = new speechRecognition()
+            var textbox = $("#textbox")
+            var instructions = $("#instructions")
+            var content = ''
+            recognition.continuous = true
+            recognition.onstart = function(){
+                instructions.text("Voice Recognition is on")
+            }
+            recognition.onspeechend = function(){
+                instructions.text("No active")
+            }
+            recognition.onerror = function(){
+                instructions.text("Error ....try again ):")
+            }
+            recognition.onresult = function (event){
+                var current = event.resultIndex;
+            
+                var transcript = event.results[current][0].transcript
+            
+                content += transcript
+                textbox.val(content)
+            }
+            $("#start-btn").click(function(event){
+                recognition.start()
+
+            })
+            textbox.on('input', function() {
+ content = $(this).val()
+})
+            </script>
+            <script>           
+      let isConnectted = false;
+      let port;
+      let writer;
+      var target_id;
+      const enc = new TextEncoder();
+      async function onChangespeech() {
+        if (!isConnectted) {
+          alert("Connect the usb.");
+          return;
+        }   
+        try {
+          const commandlist = content;
+          const commandSplit = commandlist.split(" ")
+          const command = commandSplit.slice(-1);
+          const computerText = `${command}@`;
+          await writer.write(enc.encode(computerText));
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    async function onConnectUsb() {
+      try {
+        const requestOptions = {
+          filters: [{ usbVendorId: 0x2341 }],
+        };
+        port = await navigator.serial.requestPort(requestOptions);
+        await port.open({ baudRate: 115200 });
+        writer = port.writable.getWriter();
+        isConnectted = true;
+      } catch (e) {
+        console.log("err", e);
+      }
+    }
+
+    
+  
+            </script>
+</body>
+</html>
